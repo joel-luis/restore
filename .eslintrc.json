@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "@rocketseat/eslint-config/react"
+  ], 
+  "rules": {
+    "no-unused-vars": "off",
+    "react/no-unescaped-entities": "off"
+  }
+}
