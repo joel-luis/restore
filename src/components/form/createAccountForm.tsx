@@ -54,14 +54,14 @@ export function CreateAccountForm() {
       } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${location.origin}auth/callback`,
-        },
+        // options: {
+        //   emailRedirectTo: `${location.origin}auth/callback`,
+        // },
       })
 
       if (user) {
         form.reset()
-        router.push('/')
+        router.refresh()
       }
     } catch (error) {
       console.log('CreateAccountForm', error)
@@ -69,11 +69,11 @@ export function CreateAccountForm() {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center space-y-2">
+    <div className="flex flex-col justify-center items-center">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col space-y-2"
+          className="flex w-full px-8 flex-col space-y-4"
         >
           <FormField
             control={form.control}
@@ -84,7 +84,6 @@ export function CreateAccountForm() {
                 <FormControl>
                   <Input placeholder="E-mail" {...field} />
                 </FormControl>
-                <FormDescription>This is your E-mail</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -96,9 +95,8 @@ export function CreateAccountForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="Password" {...field} />
+                  <Input type="password" placeholder="Password" {...field} />
                 </FormControl>
-                <FormDescription>This is your Password</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
