@@ -1,3 +1,5 @@
+import { UserNav } from '@/components/common/user-nav'
+
 export default async function userApp() {
-  return <h1>uesrApp</h1>
+  return <UserNav />
 }
