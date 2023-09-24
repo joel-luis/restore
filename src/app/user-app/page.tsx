@@ -1,3 +1,5 @@
-export default function userApp() {
-  return <h1>User Logged In</h1>
+import { UserNav } from '@/components/common/user-nav'
+
+export default async function userApp() {
+  return <UserNav />
 }
