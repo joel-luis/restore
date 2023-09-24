@@ -3,6 +3,7 @@
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 
 import {
   Form,
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const createAccountFormSchema = z.object({
   email: z
@@ -36,12 +38,34 @@ const createAccountFormSchema = z.object({
 type createFormSchema = z.infer<typeof createAccountFormSchema>
 
 export function CreateAccountForm() {
+  const router = useRouter()
+
   const form = useForm<createFormSchema>({
     resolver: zodResolver(createAccountFormSchema),
   })
 
   async function onSubmit(data: createFormSchema) {
-    console.log(data)
+    try {
+      const supabase = createClientComponentClient()
+      const { email, password } = data
+
+      const {
+        data: { user },
+      } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${location.origin}auth/callback`,
+        },
+      })
+
+      if (user) {
+        form.reset()
+        router.push('/')
+      }
+    } catch (error) {
+      console.log('CreateAccountForm', error)
+    }
   }
 
   return (
