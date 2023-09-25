@@ -23,10 +23,7 @@ import {
 
 export function UserNav() {
   const [user, setUser] = useState<User | null>()
-  const supabase = createClientComponentClient({
-    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  })
+  const supabase = createClientComponentClient()
   const router = useRouter()
 
   async function getUser() {
