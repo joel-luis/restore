@@ -21,11 +21,12 @@ interface FilePreview {
 }
 
 export function ImageUploadPlaceholder() {
+  const [isMounted, setIsMounted] = useState(false)
   const [file, setFile] = useState<FilePreview | null>()
-  const [, setFileToProcess] = useState<{
+  const [fileToProcess, setFileToProcess] = useState<{
     path: string
   } | null>(null)
-  const [restoreFile] = useState<FilePreview | null>()
+  const [restoreFile, setRestoreFile] = useState<FilePreview | null>()
 
   const onDrop = useCallback(async (acceptFiles: File[]) => {
     try {
@@ -51,6 +52,7 @@ export function ImageUploadPlaceholder() {
   }, [])
 
   useEffect(() => {
+    setIsMounted(true)
     return () => {
       if (file) URL.revokeObjectURL(file.preview)
       if (restoreFile) URL.revokeObjectURL(restoreFile.preview)
@@ -70,6 +72,38 @@ export function ImageUploadPlaceholder() {
   async function handleDialogOpenChange(event: boolean) {
     console.log(event, 'event')
   }
+
+  async function handleEnhance() {
+    try {
+      const supabase = createClientComponentClient()
+      const {
+        data: { publicUrl },
+      } = await supabase.storage
+        .from(process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER)
+        .getPublicUrl(`${fileToProcess?.path}`)
+
+      const res = await fetch('/api/ai/replicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl: publicUrl,
+        }),
+      })
+
+      const restoreImageUrl = await res.json()
+      const readImageRes = await fetch(restoreImageUrl.data)
+      const imageBlob = await readImageRes.blob()
+
+      setRestoreFile({
+        file: imageBlob,
+        preview: URL.createObjectURL(imageBlob),
+      })
+    } catch (error) {
+      console.log('handleEnhance', error)
+    }
+  }
+
+  if (!isMounted) return null
 
   return (
     <div className="flex h-[300px] w-full shrink-0 items-center justify-center rounded-md border border-dashed">
@@ -150,7 +184,7 @@ export function ImageUploadPlaceholder() {
               </div>
             </div>
             <DialogFooter>
-              <Button>Enhance</Button>
+              <Button onClick={handleEnhance}>Enhance</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
