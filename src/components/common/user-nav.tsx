@@ -59,7 +59,7 @@ export function UserNav() {
                   src="https://github.com/joel-luis.png"
                   alt="reStore user image"
                 />
-                <AvatarFallback>SC</AvatarFallback>
+                <AvatarFallback>JL</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

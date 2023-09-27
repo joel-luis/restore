@@ -27,12 +27,6 @@ export default async function userApp() {
                         Other
                       </TabsTrigger>
                     </TabsList>
-                    <div className="ml-auto mr-4">
-                      <Button>
-                        <PlusCircleIcon className="mr-2 h-4 w-4" />
-                        Add Collection
-                      </Button>
-                    </div>
                   </div>
                   <TabsContent
                     value="photos"
