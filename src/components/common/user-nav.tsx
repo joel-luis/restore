@@ -48,8 +48,6 @@ export function UserNav() {
     router.push('/')
   }
 
-  console.log(user, 'user')
-
   return (
     <>
       {user && (
