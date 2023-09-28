@@ -1,12 +1,34 @@
-import { Button } from '@/components/ui/button'
+import { cookies } from 'next/headers'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UserAppHeader } from '@/components/user-app/header'
 import { ImageUploadPlaceholder } from '@/components/user-app/imageUploadPlaceholder'
+import { ImageRestored } from '@/components/user-app/imageRestored'
 import { Sidebar } from '@/components/user-app/sidebar'
-import { PlusCircleIcon } from 'lucide-react'
+
+export const dynamic = 'force-static'
 
 export default async function userApp() {
+  const supabase = createServerComponentClient({ cookies })
+  const { data: restoredImages } = await supabase.storage
+    .from(process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER)
+    .list(process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER_RESTORE, {
+      limit: 10,
+      offset: 0,
+      sortBy: { column: 'name', order: 'asc' },
+    })
+
+  const {
+    data: { publicUrl },
+  } = await supabase.storage
+    .from(process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER)
+    .getPublicUrl(
+      process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER_RESTORE,
+    )
+
   return (
     <div className="md:block">
       <UserAppHeader />
@@ -20,17 +42,35 @@ export default async function userApp() {
                   <div className="space-between flex items-center">
                     <TabsList>
                       <TabsTrigger value="photos" className="relative">
-                        Photos
+                        Upload Photo
                       </TabsTrigger>
-                      <TabsTrigger value="documents">Documents</TabsTrigger>
-                      <TabsTrigger value="other" disabled>
-                        Other
+                      <TabsTrigger value="restored">
+                        Photos Restored
                       </TabsTrigger>
                     </TabsList>
                   </div>
                   <TabsContent
                     value="photos"
                     className="border-none p-0 outline-none"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h2 className="text-2xl font-semibold tracking-tight">
+                          Image restoration
+                        </h2>
+                        <p className="text-sm text-muted-foreground">
+                          Bringing Old Photos Back to Life
+                        </p>
+                      </div>
+                    </div>
+                    <Separator className="my-4" />
+                    <div className="relative">
+                      <ImageUploadPlaceholder />
+                    </div>
+                  </TabsContent>
+                  <TabsContent
+                    value="restored"
+                    className="h-full flex-col border-none p-0 data-[state=active]:flex"
                   >
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
@@ -43,68 +83,24 @@ export default async function userApp() {
                       </div>
                     </div>
                     <Separator className="my-4" />
-                    <div className="relative">
-                      <ImageUploadPlaceholder />
-                      {/* <ScrollArea>
-                        <div className="flex space-x-4 pb-4">
-                          {listenNowAlbums.map((album) => (
-                            <AlbumArtwork
-                              key={album.name}
-                              album={album}
+                    <div className="flex items-center justify-center">
+                      <ScrollArea>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-12">
+                          {restoredImages?.map((image) => (
+                            <ImageRestored
+                              key={image.name}
+                              image={image}
                               className="w-[250px]"
-                              aspectRatio="portrait"
+                              aspectRatio="square"
                               width={250}
                               height={330}
+                              publicUrl={publicUrl}
                             />
                           ))}
                         </div>
                         <ScrollBar orientation="horizontal" />
-                      </ScrollArea> */}
+                      </ScrollArea>
                     </div>
-                    <div className="mt-6 space-y-1">
-                      <h2 className="text-2xl font-semibold tracking-tight">
-                        Made for You
-                      </h2>
-                      <p className="text-sm text-muted-foreground">
-                        Your personal playlists. Updated daily.
-                      </p>
-                    </div>
-                    <Separator className="my-4" />
-                    <div className="relative">
-                      lista 2
-                      {/* <ScrollArea>
-                        <div className="flex space-x-4 pb-4">
-                          {madeForYouAlbums.map((album) => (
-                            <AlbumArtwork
-                              key={album.name}
-                              album={album}
-                              className="w-[150px]"
-                              aspectRatio="square"
-                              width={150}
-                              height={150}
-                            />
-                          ))}
-                        </div>
-                        <ScrollBar orientation="horizontal" />
-                      </ScrollArea> */}
-                    </div>
-                  </TabsContent>
-                  <TabsContent
-                    value="documents"
-                    className="h-full flex-col border-none p-0 data-[state=active]:flex"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <h2 className="text-2xl font-semibold tracking-tight">
-                          New Episodes
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                          Your favorite podcasts. Updated daily.
-                        </p>
-                      </div>
-                    </div>
-                    <Separator className="my-4" />
-                    {/* <PodcastEmptyPlaceholder /> */}
                   </TabsContent>
                 </Tabs>
               </div>

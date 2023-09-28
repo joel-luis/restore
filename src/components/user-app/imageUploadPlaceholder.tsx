@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +28,8 @@ export function ImageUploadPlaceholder() {
     path: string
   } | null>(null)
   const [restoreFile, setRestoreFile] = useState<FilePreview | null>()
+
+  const router = useRouter()
 
   const onDrop = useCallback(async (acceptFiles: File[]) => {
     try {
@@ -70,7 +73,11 @@ export function ImageUploadPlaceholder() {
   })
 
   async function handleDialogOpenChange(event: boolean) {
-    console.log(event, 'event')
+    if (!event) {
+      setFile(null)
+      setRestoreFile(null)
+      router.refresh()
+    }
   }
 
   async function handleEnhance() {
@@ -98,8 +105,17 @@ export function ImageUploadPlaceholder() {
         file: imageBlob,
         preview: URL.createObjectURL(imageBlob),
       })
+
+      await supabase.storage
+        .from(process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER)
+        .upload(
+          `${process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER_RESTORE}/${file?.file.name}`,
+          imageBlob,
+        )
     } catch (error) {
       console.log('handleEnhance', error)
+      setFile(null)
+      setRestoreFile(null)
     }
   }
 
@@ -128,7 +144,7 @@ export function ImageUploadPlaceholder() {
           The photo you add will be enhanced by AI
         </p>
         <Dialog onOpenChange={handleDialogOpenChange}>
-          <DialogTrigger>
+          <DialogTrigger asChild>
             <Button size="sm" className="relative">
               Bring your past to life
             </Button>

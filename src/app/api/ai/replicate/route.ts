@@ -6,7 +6,7 @@ interface NextRequestWithImage extends NextRequest {
   imageUrl: string
 }
 
-export async function POST(req: NextRequestWithImage, res: NextResponse) {
+export async function POST(req: NextRequestWithImage) {
   const { imageUrl } = await req.json()
 
   const supabase = createRouteHandlerClient({ cookies })
@@ -46,7 +46,6 @@ export async function POST(req: NextRequestWithImage, res: NextResponse) {
   let restoredImage: string | null = null
 
   while (!restoredImage) {
-    console.log('Pooling image from Replicate...')
     const finalResponse = await fetch(endpointUrl, {
       method: 'GET',
       headers: {
