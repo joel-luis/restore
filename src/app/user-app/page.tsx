@@ -9,7 +9,7 @@ import { ImageUploadPlaceholder } from '@/components/user-app/imageUploadPlaceho
 import { ImageRestored } from '@/components/user-app/imageRestored'
 import { Sidebar } from '@/components/user-app/sidebar'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
 export default async function userApp() {
   const supabase = createServerComponentClient({ cookies })
