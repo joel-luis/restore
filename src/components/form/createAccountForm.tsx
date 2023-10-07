@@ -16,6 +16,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useState } from 'react'
+import { Icons } from '../ui/icons'
 
 const createAccountFormSchema = z.object({
   email: z
@@ -37,6 +39,7 @@ const createAccountFormSchema = z.object({
 type createFormSchema = z.infer<typeof createAccountFormSchema>
 
 export function CreateAccountForm() {
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   const form = useForm<createFormSchema>({
@@ -45,6 +48,7 @@ export function CreateAccountForm() {
 
   async function onSubmit(data: createFormSchema) {
     try {
+      setIsLoading(true)
       const supabase = createClientComponentClient()
       const { email, password } = data
 
@@ -62,6 +66,7 @@ export function CreateAccountForm() {
         form.reset()
         router.refresh()
       }
+      setIsLoading(false)
     } catch (error) {
       console.log('CreateAccountForm', error)
     }
@@ -100,7 +105,13 @@ export function CreateAccountForm() {
               </FormItem>
             )}
           />
-          <Button type="submit">Create Account</Button>
+          <Button disabled={isLoading} type="submit">
+            {isLoading ? (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              'Create Account'
+            )}
+          </Button>
         </form>
       </Form>
     </div>

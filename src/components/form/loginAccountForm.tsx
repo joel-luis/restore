@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useState } from 'react'
+import { Icons } from '../ui/icons'
 
 const loginAccountFormSchema = z.object({
   email: z
@@ -37,6 +39,7 @@ const loginAccountFormSchema = z.object({
 type loginFormSchema = z.infer<typeof loginAccountFormSchema>
 
 export function LoginAccountForm() {
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   const form = useForm<loginFormSchema>({
@@ -45,6 +48,7 @@ export function LoginAccountForm() {
 
   async function onSubmit(data: loginFormSchema) {
     try {
+      setIsLoading(true)
       const supabase = createClientComponentClient()
       const { email, password } = data
 
@@ -53,6 +57,7 @@ export function LoginAccountForm() {
       } = await supabase.auth.signInWithPassword({ email, password })
 
       if (session) {
+        setIsLoading(false)
         form.reset()
         router.push('/user-app')
       }
@@ -94,7 +99,13 @@ export function LoginAccountForm() {
               </FormItem>
             )}
           />
-          <Button type="submit">Login</Button>
+          <Button disabled={isLoading} type="submit">
+            {isLoading ? (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              'Login'
+            )}
+          </Button>
         </form>
       </Form>
     </div>

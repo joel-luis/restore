@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { useDropzone } from 'react-dropzone'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Icons } from '../ui/icons'
 
 interface FilePreview {
   file: Blob
@@ -28,6 +29,7 @@ export function ImageUploadPlaceholder() {
     path: string
   } | null>(null)
   const [restoreFile, setRestoreFile] = useState<FilePreview | null>()
+  const [isLoading, setIsLoading] = useState(false)
 
   const router = useRouter()
 
@@ -82,6 +84,7 @@ export function ImageUploadPlaceholder() {
 
   async function handleEnhance() {
     try {
+      setIsLoading(true)
       const supabase = createClientComponentClient()
       const {
         data: { publicUrl },
@@ -112,6 +115,7 @@ export function ImageUploadPlaceholder() {
           `${process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER_RESTORE}/${file?.file.name}`,
           imageBlob,
         )
+      setIsLoading(false)
     } catch (error) {
       console.log('handleEnhance', error)
       setFile(null)
@@ -200,7 +204,13 @@ export function ImageUploadPlaceholder() {
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleEnhance}>Enhance</Button>
+              <Button disabled={isLoading || !file} onClick={handleEnhance}>
+                {isLoading ? (
+                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  'Enhance'
+                )}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
